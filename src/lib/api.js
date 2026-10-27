@@ -169,12 +169,10 @@ export function penawaranValid(body) {
   return { ...hasil, berakhirPada: tanggal.toISOString() };
 }
 
+
 export function pesananValid(body) {
-  objekValid(body, ["emailPembeli", "items"]);
-  const emailPembeli = teksValid(body.emailPembeli, "emailPembeli", 3, 254);
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPembeli)) {
-    salah("Format emailPembeli tidak valid.");
-  }
+  objekValid(body, ["items"]);
+
   if (
     !Array.isArray(body.items) ||
     body.items.length < 1 ||
@@ -182,17 +180,25 @@ export function pesananValid(body) {
   ) {
     salah("items wajib array berisi 1-10 item.");
   }
+
   const unik = new Set();
   const items = body.items.map((item) => {
     objekValid(item, ["penawaranId", "kuantitas"]);
+
     const penawaranId = idValid(item.penawaranId, "penawaranId");
     const kuantitas = angkaValid(item.kuantitas, "kuantitas", 1, 1000);
-    if (unik.has(penawaranId)) salah("ID penawaran tidak boleh ganda.");
+
+    if (unik.has(penawaranId)) {
+      salah("ID penawaran tidak boleh ganda.");
+    }
+
     unik.add(penawaranId);
     return { penawaranId, kuantitas };
   });
+
   items.sort((a, b) =>
     BigInt(a.penawaranId) < BigInt(b.penawaranId) ? -1 : 1,
   );
-  return { emailPembeli, items };
+
+  return { items };
 }
