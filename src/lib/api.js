@@ -66,12 +66,11 @@ export function halamanValid(query) {
 }
 
 export function metaHalaman(jumlah, paging) {
-  const total = Number(jumlah);
   return {
-    jumlah: total,
+    jumlah,
     page: paging.page,
     limit: paging.limit,
-    totalPages: Math.ceil(total / paging.limit) || 1,
+    totalPages: Math.ceil(jumlah / paging.limit),
   };
 }
 
@@ -108,7 +107,12 @@ export function penawaranValid(body) {
     penyediaId: idValid(body.penyediaId, "penyediaId"),
     nama: teksValid(body.nama, "nama", 3, 120),
     kategori: teksValid(body.kategori, "kategori", 1, 40),
-    hargaNormal: angkaValid(body.hargaNormal, "hargaNormal", 1, 999999999999),
+    hargaNormal: angkaValid(
+      body.hargaNormal,
+      "hargaNormal",
+      1,
+      999999999999,
+    ),
     hargaPenawaran: angkaValid(
       body.hargaPenawaran,
       "hargaPenawaran",
@@ -137,7 +141,7 @@ export function penawaranValid(body) {
   const bulan = Number(waktu.slice(5, 7));
   const hari = Number(waktu.slice(8, 10));
   const kabisat =
-    (tahun % 4 === 0 && tahun % 100 !== 0) || tahun % 400 === 0;
+    tahun % 4 === 0 && (tahun % 100 !== 0 || tahun % 400 === 0);
   const hariBulan = [
     31,
     kabisat ? 29 : 28,
@@ -169,10 +173,12 @@ export function penawaranValid(body) {
   return { ...hasil, berakhirPada: tanggal.toISOString() };
 }
 
-
 export function pesananValid(body) {
-  objekValid(body, ["items"]);
-
+  objekValid(body, ["emailPembeli", "items"]);
+  const emailPembeli = teksValid(body.emailPembeli, "emailPembeli", 3, 254);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPembeli)) {
+    salah("Format emailPembeli tidak valid.");
+  }
   if (
     !Array.isArray(body.items) ||
     body.items.length < 1 ||
@@ -180,25 +186,17 @@ export function pesananValid(body) {
   ) {
     salah("items wajib array berisi 1-10 item.");
   }
-
   const unik = new Set();
   const items = body.items.map((item) => {
     objekValid(item, ["penawaranId", "kuantitas"]);
-
     const penawaranId = idValid(item.penawaranId, "penawaranId");
     const kuantitas = angkaValid(item.kuantitas, "kuantitas", 1, 1000);
-
-    if (unik.has(penawaranId)) {
-      salah("ID penawaran tidak boleh ganda.");
-    }
-
+    if (unik.has(penawaranId)) salah("ID penawaran tidak boleh ganda.");
     unik.add(penawaranId);
     return { penawaranId, kuantitas };
   });
-
   items.sort((a, b) =>
     BigInt(a.penawaranId) < BigInt(b.penawaranId) ? -1 : 1,
   );
-
-  return { items };
+  return { emailPembeli, items };
 }
