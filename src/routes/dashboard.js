@@ -1,4 +1,4 @@
-import Router from "express";
+import { Router } from "express";
 import { ringkasanDashboard } from "../services/dashboard.js";
 import {
   wajibLogin,
@@ -14,10 +14,8 @@ router.use((req, res, next) => {
   }
   next();
 });
-
 router.get("/", async (req, res) => {
   const data = await ringkasanDashboard(req.pengguna);
   res.json({ success: true, data });
 });
-
 export default router;

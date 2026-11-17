@@ -39,9 +39,9 @@ try {
     const cek = await client.query(`SELECT current_database() AS nama,
       to_regclass('public.pengguna') AS pengguna,
       to_regclass('public.penawaran') AS penawaran,
-      to_regclass('public.pesanan') AS pesanan`);
+      to_regclass('public.pesanan') AS pesanan,
+      (SELECT ssl FROM pg_stat_ssl WHERE pid=pg_backend_pid()) AS tls`);
     const db = cek.rows[0];
-    const tlsAktif = Boolean(client.connection.stream.encrypted);
     const tujuan = cloud
       ? (process.env.CLOUD_CONFIRM_DATABASE ??
         process.env.DEMO_CONFIRM_DATABASE)
@@ -51,7 +51,7 @@ try {
       !db.pengguna ||
       !db.penawaran ||
       !db.pesanan ||
-      (cloud && !tlsAktif)
+      (cloud && !db.tls)
     ) {
       throw new Error(
         "Database tujuan atau schema dasar belum sesuai. Data tidak direset.",

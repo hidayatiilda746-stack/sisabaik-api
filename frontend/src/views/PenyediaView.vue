@@ -18,7 +18,6 @@ const waktu = ref(Date.now());
 const sedangEdit = ref(null);
 const areaForm = ref(null);
 const konflik = ref(false);
-
 async function ubah(penawaran) {
   sedangEdit.value = { ...penawaran };
   konflik.value = false;
@@ -28,7 +27,6 @@ async function ubah(penawaran) {
   areaForm.value?.querySelector("#nama")?.focus();
   areaForm.value?.scrollIntoView({ behavior: "auto", block: "start" });
 }
-
 async function muatVersiTerbaru() {
   const id = sedangEdit.value?.id;
   if (!id || menyimpan.value) return;
@@ -45,33 +43,26 @@ async function muatVersiTerbaru() {
     menyimpan.value = false;
   }
 }
-
 const timer = setInterval(() => {
   waktu.value = Date.now();
 }, 1000);
-
 const controller = new AbortController();
-
 onUnmounted(() => {
   clearInterval(timer);
   controller.abort();
 });
-
 const { data, sibuk, error, muat } = useBaca((signal) =>
   api(`/api/penawaran/milik-saya?page=${page.value}&limit=2`, {
     auth: true,
     signal,
-  })
+  }),
 );
-
 watch(page, muat, { immediate: true });
-
 async function simpan(body) {
   if (menyimpan.value || sesi.keluar) return;
   menyimpan.value = true;
   errorSimpan.value = "";
   pesan.value = "";
-
   try {
     const mengedit = Boolean(sedangEdit.value);
     const hasil = await api(
@@ -81,13 +72,12 @@ async function simpan(body) {
         auth: true,
         body,
         signal: controller.signal,
-      }
+      },
     );
     sedangEdit.value = null;
     berhasil.value++;
     konflik.value = false;
     pesan.value = `Penawaran ${hasil.data.id} berhasil disimpan.`;
-
     if (page.value !== 1) page.value = 1;
     else await muat();
   } catch (e) {
@@ -102,10 +92,7 @@ async function simpan(body) {
 </script>
 
 <template>
-  <section
-    class="container workspace section"
-    aria-labelledby="judul-penyedia"
-  >
+  <section class="container workspace section" aria-labelledby="judul-penyedia">
     <div class="page-heading">
       <div>
         <p class="eyebrow"><Ikon nama="toko" />Ruang usaha Anda</p>
@@ -115,7 +102,6 @@ async function simpan(body) {
           pembeli mudah memilih.
         </p>
       </div>
-
       <RouterLink class="button button-secondary" to="/pesanan"
         ><Ikon nama="tas" />Pesanan masuk</RouterLink
       >
@@ -123,7 +109,6 @@ async function simpan(body) {
         ><Ikon nama="grafik" />Lihat dashboard</RouterLink
       >
     </div>
-
     <div class="provider-layout">
       <div ref="areaForm" class="provider-form-area">
         <FormPenawaran
@@ -137,7 +122,6 @@ async function simpan(body) {
             konflik = false;
           "
         />
-
         <p
           v-if="pesan"
           class="notice notice-success"
@@ -146,7 +130,6 @@ async function simpan(body) {
         >
           <Ikon nama="cek" />{{ pesan }}
         </p>
-
         <div v-if="errorSimpan" class="notice notice-error">
           <div>
             <p role="alert">{{ errorSimpan }}</p>
@@ -165,11 +148,9 @@ async function simpan(body) {
           </div>
         </div>
       </div>
-
       <aside class="provider-guide">
         <span class="icon-tile"><Ikon nama="daun" /></span>
         <h2>Penawaran yang baik dimulai dari informasi yang jelas.</h2>
-
         <ol>
           <li>
             <strong>Beri nama yang spesifik</strong>
@@ -179,7 +160,7 @@ async function simpan(body) {
             </p>
           </li>
           <li>
-            <strong>Tentukan harga &amp; stok</strong>
+            <strong>Tentukan harga & stok</strong>
             <p>
               Harga penawaran tidak melebihi harga normal. Nilai nol berarti
               penawaran gratis.
@@ -193,7 +174,6 @@ async function simpan(body) {
             </p>
           </li>
         </ol>
-
         <div class="guide-note">
           <Ikon nama="aman" />
           <p>
@@ -203,7 +183,6 @@ async function simpan(body) {
         </div>
       </aside>
     </div>
-
     <div class="section-heading offer-list-heading">
       <div>
         <p class="eyebrow">Daftar usaha Anda</p>
@@ -212,7 +191,6 @@ async function simpan(body) {
           Penawaran draft dan aktif tetap dapat dilihat oleh pemilik akun.
         </p>
       </div>
-
       <button
         class="button-secondary"
         type="button"
@@ -222,15 +200,12 @@ async function simpan(body) {
         <Ikon nama="ulang" />Perbarui daftar
       </button>
     </div>
-
     <StatusBaca :sibuk="sibuk" :error="error" @ulang="muat" />
-
     <div v-if="data && !data.data.length" class="empty-state">
       <span class="icon-tile"><Ikon nama="toko" /></span>
       <h3>Belum ada penawaran pada halaman ini.</h3>
       <p>Isi formulir di atas untuk mulai menawarkan makanan Anda.</p>
     </div>
-
     <div v-if="data" class="daftar catalog-grid">
       <KartuPenawaran
         v-for="p in data.data"
@@ -241,7 +216,6 @@ async function simpan(body) {
         @ubah="ubah"
       />
     </div>
-
     <Paginasi
       v-if="data"
       :meta="data.meta"

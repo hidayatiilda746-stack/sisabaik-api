@@ -1,9 +1,10 @@
 <script setup>
-import { nextTick, ref, watch, onUnmounted } from "vue";
+import { nextTick } from "vue";
 import Ikon from "../components/Ikon.vue";
 import makanan from "../assets/food-bowl.svg";
 import roti from "../assets/food-bread.svg";
 import bahan from "../assets/food-produce.svg";
+import { ref, watch, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import FilterPenawaran from "../components/FilterPenawaran.vue";
 import KartuPenawaran from "../components/KartuPenawaran.vue";
@@ -16,11 +17,9 @@ import { formatRupiah, tersedia } from "../lib/tampilan.js";
 
 const router = useRouter();
 const ringkasan = ref(null);
-
 function jelajahi() {
   document.getElementById("katalog")?.scrollIntoView({ block: "start" });
 }
-
 const pencarian = ref("");
 const kategori = ref("");
 const page = ref(1);
@@ -29,21 +28,17 @@ const pilihan = ref(null);
 const kuantitas = ref(1);
 const memesan = ref(false);
 const errorPesan = ref("");
-
 const waktu = ref(Date.now());
 const timer = setInterval(() => {
   waktu.value = Date.now();
 }, 1000);
-
 let tunda;
 const kirim = new AbortController();
-
 onUnmounted(() => {
   clearInterval(timer);
   clearTimeout(tunda);
   kirim.abort();
 });
-
 const { data, sibuk, error, muat, batalkan } = useBaca((signal) => {
   const query = new URLSearchParams({
     q: pencarian.value.trim(),
@@ -53,7 +48,6 @@ const { data, sibuk, error, muat, batalkan } = useBaca((signal) => {
   });
   return api(`/api/penawaran?${query}`, { signal });
 });
-
 watch(
   [pencarian, kategori, page],
   () => {
@@ -62,44 +56,37 @@ watch(
     pilihan.value = null;
     tunda = setTimeout(muat, 300);
   },
-  { immediate: true }
+  { immediate: true },
 );
-
 watch(data, (hasil) => {
   if (hasil && page.value > Math.max(1, hasil.meta.totalPages)) {
     page.value = Math.max(1, hasil.meta.totalPages);
   }
 });
-
 function cari(nilai) {
   pencarian.value = nilai;
   page.value = 1;
 }
-
 function filter(nilai) {
   kategori.value = nilai;
   page.value = 1;
 }
-
 function reset() {
   cari("");
   filter("");
 }
-
 async function pilih(id) {
-  pilihan.value = data.value?.data.find((p) => p.id == id) ?? null;
+  pilihan.value = data.value?.data.find((p) => p.id === id) ?? null;
   kuantitas.value = 1;
   errorPesan.value = "";
   await nextTick();
   ringkasan.value?.focus();
   ringkasan.value?.scrollIntoView?.({ block: "center" });
 }
-
 async function pesan() {
   if (memesan.value || sesi.keluar) return;
   const p = pilihan.value;
   if (sesi.pengguna?.peran !== "pembeli") return;
-
   if (
     !p ||
     !tersedia(p, Date.now()) ||
@@ -110,7 +97,6 @@ async function pesan() {
     errorPesan.value = "Periksa pilihan, waktu berlaku, dan jumlah unit.";
     return;
   }
-
   memesan.value = true;
   errorPesan.value = "";
   try {
@@ -124,7 +110,9 @@ async function pesan() {
     });
     await router.push(`/pesanan/${hasil.data.id}`);
   } catch (e) {
-    if (e.name !== "AbortError") errorPesan.value = pesanError(e);
+    if (e.name !== "AbortError") {
+      errorPesan.value = pesanError(e);
+    }
   } finally {
     memesan.value = false;
   }
@@ -149,9 +137,8 @@ async function pesan() {
         </p>
         <div class="button-group">
           <button type="button" @click="jelajahi">
-            Jelajahi makanan<Ikon nama="panah" />
-          </button>
-          <RouterLink
+            Jelajahi makanan<Ikon nama="panah" /></button
+          ><RouterLink
             class="button button-secondary"
             :to="
               sesi.pengguna?.peran === 'penyedia'
@@ -162,11 +149,10 @@ async function pesan() {
           /></RouterLink>
         </div>
         <div class="hero-values">
-          <span><Ikon nama="daun" />Lebih sedikit terbuang</span>
-          <span><Ikon nama="tas" />Lebih banyak manfaat</span>
+          <span><Ikon nama="daun" />Lebih sedikit terbuang</span
+          ><span><Ikon nama="tas" />Lebih banyak manfaat</span>
         </div>
       </div>
-
       <div class="hero-art" aria-label="Ilustrasi makanan dan roti">
         <div class="hero-orbit"></div>
         <img
@@ -180,8 +166,8 @@ async function pesan() {
         <div class="hero-art-note">
           <span class="icon-tile"><Ikon nama="daun" /></span>
           <div>
-            <strong>Masih layak. Masih bernilai.</strong>
-            <small>Kesempatan baik dimulai dari sini.</small>
+            <strong>Masih layak. Masih bernilai.</strong
+            ><small>Kesempatan baik dimulai dari sini.</small>
           </div>
         </div>
         <img
@@ -195,31 +181,26 @@ async function pesan() {
       </div>
     </div>
   </section>
-
   <div class="container value-bar" aria-label="Manfaat SisaBaik">
     <div>
-      <Ikon nama="tas" />
-      <span>
-        <strong>Harga yang lebih bersahabat</strong>
-        <small>Pilih penawaran sesuai kebutuhan.</small>
-      </span>
+      <Ikon nama="tas" /><span
+        ><strong>Harga yang lebih bersahabat</strong
+        ><small>Pilih penawaran sesuai kebutuhan.</small></span
+      >
     </div>
     <div>
-      <Ikon nama="toko" />
-      <span>
-        <strong>Peluang untuk usaha</strong>
-        <small>Pulihkan nilai makanan berlebih.</small>
-      </span>
+      <Ikon nama="toko" /><span
+        ><strong>Peluang untuk usaha</strong
+        ><small>Pulihkan nilai makanan berlebih.</small></span
+      >
     </div>
     <div>
-      <Ikon nama="daun" />
-      <span>
-        <strong>Kebaikan dari kebiasaan kecil</strong>
-        <small>Utamakan makanan layak konsumsi.</small>
-      </span>
+      <Ikon nama="daun" /><span
+        ><strong>Kebaikan dari kebiasaan kecil</strong
+        ><small>Utamakan makanan layak konsumsi.</small></span
+      >
     </div>
   </div>
-
   <section
     id="katalog"
     class="section container"
@@ -238,7 +219,6 @@ async function pesan() {
         ><Ikon nama="jam" />Perhatikan batas waktu</span
       >
     </div>
-
     <FilterPenawaran
       :pencarian="pencarian"
       :kategori="kategori"
@@ -247,14 +227,11 @@ async function pesan() {
       @ubah-kategori="filter"
       @reset="reset"
     />
-
     <StatusBaca :sibuk="sibuk" :error="error" @ulang="muat" />
-
     <p v-if="!sesi.pengguna" class="catalog-hint">
       <Ikon nama="info" />Login sebagai pembeli untuk memesan. Anda tetap bisa
       menjelajahi katalog.
     </p>
-
     <div v-if="data && data.data.length === 0" class="empty-state">
       <span class="icon-tile"><Ikon nama="cari" /></span>
       <h3>Tidak ada penawaran yang cocok.</h3>
@@ -266,7 +243,6 @@ async function pesan() {
         Tampilkan semua kategori
       </button>
     </div>
-
     <div v-if="data" class="daftar catalog-grid" :aria-busy="sibuk">
       <KartuPenawaran
         v-for="p in data.data"
@@ -278,14 +254,12 @@ async function pesan() {
         @pilih="pilih"
       />
     </div>
-
     <Paginasi
       v-if="data"
       :meta="data.meta"
       :sibuk="sibuk || memesan"
       @halaman="page = $event"
     />
-
     <section
       v-if="pilihan && sesi.pengguna?.peran === 'pembeli'"
       ref="ringkasan"
@@ -298,20 +272,20 @@ async function pesan() {
         <h3 id="judul-pilihan">Pesan {{ pilihan.nama }}</h3>
         <p>{{ pilihan.penyedia }}</p>
         <p class="checkout-price">
-          {{ formatRupiah(pilihan.hargaPenawaran) }}<span>/ {{ pilihan.satuan }}</span>
+          {{ formatRupiah(pilihan.hargaPenawaran)
+          }}<span>/ {{ pilihan.satuan }}</span>
         </p>
         <p class="muted">
           Harga dan ketersediaan dikonfirmasi saat pemesanan. Atur pengambilan
           dengan penyedia sebelum batas waktu.
         </p>
       </div>
-
       <div>
         <form @submit.prevent="pesan" :aria-busy="memesan">
           <fieldset :disabled="memesan || sesi.keluar">
             <legend>Jumlah pemesanan</legend>
-            <label for="kuantitas">Jumlah {{ pilihan.satuan }}</label>
-            <input
+            <label for="kuantitas">Jumlah {{ pilihan.satuan }}</label
+            ><input
               id="kuantitas"
               v-model.number="kuantitas"
               type="number"
@@ -324,9 +298,8 @@ async function pesan() {
               Tersedia {{ pilihan.stok }} {{ pilihan.satuan }}. Maksimum 1.000
               unit per item.
             </p>
-
-            <label class="check-row payment-choice">
-              <input
+            <label class="check-row payment-choice"
+              ><input
                 type="radio"
                 name="metode-pembayaran"
                 value="di-tempat"
@@ -336,14 +309,13 @@ async function pesan() {
                 pilihan.hargaPenawaran === 0
                   ? "Gratis, tanpa pembayaran"
                   : "Bayar di tempat saat pengambilan"
-              }}</span>
-            </label>
-
+              }}</span></label
+            >
             <div class="button-group">
               <button type="submit">
-                {{ memesan ? "Memproses..." : "Buat pesanan" }}<Ikon nama="panah" />
-              </button>
-              <button
+                {{ memesan ? "Memproses…" : "Buat pesanan"
+                }}<Ikon nama="panah" /></button
+              ><button
                 class="button-quiet"
                 type="button"
                 @click="pilihan = null"
@@ -353,15 +325,14 @@ async function pesan() {
             </div>
           </fieldset>
         </form>
-
         <div v-if="errorPesan" class="notice notice-error">
           <div>
             <p role="alert">{{ errorPesan }}</p>
             <p>
               Jika hasil belum pasti, periksa Pesanan sebelum mengirim lagi.
             </p>
-            <RouterLink to="/pesanan">Periksa pesanan saya</RouterLink>
-            <button
+            <RouterLink to="/pesanan">Periksa pesanan saya</RouterLink
+            ><button
               class="button-secondary"
               type="button"
               :disabled="memesan"
@@ -374,7 +345,6 @@ async function pesan() {
       </div>
     </section>
   </section>
-
   <section class="how-section section" aria-labelledby="judul-cara">
     <div class="container">
       <div class="section-heading">
@@ -383,7 +353,6 @@ async function pesan() {
           <h2 id="judul-cara">Tiga langkah, satu kesempatan baik.</h2>
         </div>
       </div>
-
       <div class="steps-grid">
         <article>
           <span class="step-number">01</span><Ikon nama="cari" />
@@ -393,7 +362,6 @@ async function pesan() {
             penawaran.
           </p>
         </article>
-
         <article>
           <span class="step-number">02</span><Ikon nama="tas" />
           <h3>Pesan sesuai kebutuhan</h3>
@@ -402,24 +370,22 @@ async function pesan() {
             yang tercatat.
           </p>
         </article>
-
         <article>
           <span class="step-number">03</span><Ikon nama="daun" />
           <h3>Koordinasikan pengambilan</h3>
           <p>
-            Atur pengambilan bersama penyedia. Reservasi makanan belum berarti
+            Atur pengambilan bersama penyedia. Reservasi belum berarti makanan
             telah diambil.
           </p>
         </article>
       </div>
     </div>
   </section>
-
   <section class="container section">
     <div class="business-banner">
       <div>
         <p class="eyebrow">Untuk penyedia makanan</p>
-        <h2>Stok berlebih, <br />peluang baru.</h2>
+        <h2>Stok berlebih,<br />peluang baru.</h2>
         <p>
           Tawarkan makanan yang masih layak konsumsi, pulihkan nilainya, dan
           catat perkembangan usaha Anda dalam satu tempat.
@@ -434,7 +400,6 @@ async function pesan() {
           >Mulai menawarkan<Ikon nama="panah"
         /></RouterLink>
       </div>
-
       <div class="banner-art">
         <img
           :src="bahan"
@@ -446,12 +411,11 @@ async function pesan() {
         />
       </div>
     </div>
-
     <p class="food-notice">
-      <Ikon nama="aman" /><span>
-        Utamakan makanan yang masih layak konsumsi. Periksa kondisi makanan,
-        informasi alergen serta penyimpanan dan koordinasikan dengan penyedia.
-      </span>
+      <Ikon nama="aman" /><span
+        >Utamakan makanan yang masih layak konsumsi. Periksa kondisi makanan dan
+        koordinasikan informasi alergen serta penyimpanan dengan penyedia.</span
+      >
     </p>
   </section>
 </template>

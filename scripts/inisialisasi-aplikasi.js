@@ -37,12 +37,11 @@ try {
     .replace(/COMMIT;\s*$/, "");
   await transaksi(async (c) => {
     await c.query("SELECT pg_advisory_xact_lock(74091211)");
-    const r = await c.query(
-      "SELECT current_database() AS nama",
-    );
-    const tlsAktif = Boolean(c.connection.stream.encrypted);
+    const r = await c.query("SELECT current_database() AS nama");
+    const socket = c.connection.stream;
+    const tls = socket?.encrypted === true && socket?.authorized === true;
 
-    if (r.rows[0].nama !== tujuan || (cloud && !tlsAktif))
+    if (r.rows[0].nama !== tujuan || (cloud && !tls))
       throw new Error("Database tujuan atau TLS belum sesuai.");
     const cek = await c.query(
       "SELECT COUNT(*)::int AS jumlah FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'",

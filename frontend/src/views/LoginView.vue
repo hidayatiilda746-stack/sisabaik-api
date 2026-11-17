@@ -1,3 +1,4 @@
+
 <script setup>
 import Ikon from "../components/Ikon.vue";
 import makanan from "../assets/food-bowl.svg";
@@ -68,18 +69,18 @@ async function login() {
       />
 
       <div class="login-story-bottom">
-        <Ikon nama="toko" /><span
-          >Pembeli &amp; penyedia.<br /><strong
-            >Satu ekosistem kebaikan.</strong
-          ></span
-        >
+        <Ikon nama="toko" />
+        <span>
+          Pembeli &amp; penyedia.<br />
+          <strong>Satu ekosistem kebaikan.</strong>
+        </span>
       </div>
     </div>
 
     <div class="login-card">
-      <span class="outline-pill"
-        ><Ikon nama="aman" />Akses sesuai akun</span
-      >
+      <span class="outline-pill">
+        <Ikon nama="aman" />Akses sesuai akun
+      </span>
       <h1 id="judul-login">Login SisaBaik</h1>
       <p class="muted">
         Senang melihat Anda kembali. Masuk untuk melanjutkan aktivitas Anda.
@@ -145,9 +146,9 @@ async function login() {
         </p>
       </div>
 
-      <RouterLink class="back-link" to="/"
-        ><Ikon nama="kiri" />Jelajahi katalog terlebih dahulu</RouterLink
-      >
+      <RouterLink class="back-link" to="/">
+        <Ikon nama="kiri" />Jelajahi katalog terlebih dahulu
+      </RouterLink>
     </div>
   </section>
 </template>
