@@ -7,7 +7,6 @@ import Ikon from "./Ikon.vue";
 
 const props = defineProps({ pesanan: { type: Object, required: true } });
 const emit = defineEmits(["terubah", "perbarui"]);
-
 const pilihan = ref("");
 const alasan = ref("");
 const pembayaranDiterima = ref(false);
@@ -16,40 +15,30 @@ const sibuk = ref(false);
 const error = ref("");
 const pesan = ref("");
 const areaKonfirmasi = ref(null);
-
 const controller = new AbortController();
 onUnmounted(() => controller.abort());
-
 watch(
   () => props.pesanan.status,
   () => {
     pilihan.value = "";
     alasan.value = "";
-  }
+  },
 );
-
 async function buka(aksi) {
   pilihan.value = aksi;
   alasan.value = "";
   pembayaranDiterima.value = false;
   makananDiserahkan.value = false;
   error.value = "";
-
   await nextTick();
   areaKonfirmasi.value?.querySelector("textarea, input")?.focus();
-  areaKonfirmasi.value?.scrollIntoView({
-    behavior: "auto",
-    block: "nearest",
-  });
+  areaKonfirmasi.value?.scrollIntoView({ behavior: "auto", block: "nearest" });
 }
-
 async function kirim(aksi) {
   if (sibuk.value || sesi.keluar) return;
   error.value = "";
   pesan.value = "";
-
   const body = { aksi };
-
   if (["batal", "tolak"].includes(aksi)) {
     if (alasan.value.trim().length < 3) {
       error.value = "Tuliskan alasan minimal 3 karakter.";
@@ -57,7 +46,6 @@ async function kirim(aksi) {
     }
     body.alasan = alasan.value.trim();
   }
-
   if (aksi === "selesai") {
     if (
       !makananDiserahkan.value ||
@@ -69,7 +57,6 @@ async function kirim(aksi) {
     }
     body.pembayaranDiterima = pembayaranDiterima.value;
   }
-
   sibuk.value = true;
   try {
     const hasil = await api("/api/pesanan/" + props.pesanan.id + "/aksi", {
@@ -107,10 +94,8 @@ async function kirim(aksi) {
           : "Tindakan pesanan saya"
       }}
     </h3>
-
     <p v-if="pesan" class="notice notice-success" role="status">{{ pesan }}</p>
     <p v-if="error" class="notice notice-error" role="alert">{{ error }}</p>
-
     <div class="button-group" v-if="props.pesanan.bolehAksi?.length">
       <button
         v-if="props.pesanan.bolehAksi.includes('konfirmasi')"
@@ -120,7 +105,6 @@ async function kirim(aksi) {
       >
         <Ikon nama="cek" />Terima pesanan
       </button>
-
       <button
         v-if="props.pesanan.bolehAksi.includes('siap')"
         type="button"
@@ -129,7 +113,6 @@ async function kirim(aksi) {
       >
         Tandai siap diambil
       </button>
-
       <button
         v-if="props.pesanan.bolehAksi.includes('selesai')"
         type="button"
@@ -138,7 +121,6 @@ async function kirim(aksi) {
       >
         Catat pengambilan &amp; pembayaran
       </button>
-
       <button
         v-if="props.pesanan.bolehAksi.includes('tolak')"
         type="button"
@@ -148,7 +130,6 @@ async function kirim(aksi) {
       >
         Tolak pesanan
       </button>
-
       <button
         v-if="props.pesanan.bolehAksi.includes('batal')"
         type="button"
@@ -159,17 +140,15 @@ async function kirim(aksi) {
         Batalkan pesanan
       </button>
     </div>
-
     <p class="muted" v-else>
       {{
         props.pesanan.status === "selesai"
           ? "Pesanan sudah selesai."
           : props.pesanan.status === "dibatalkan"
-          ? "Pesanan telah ditutup."
-          : "Pesanan sudah diterima penyedia. Pantau status dan tunggu makanan siap diambil."
+            ? "Pesanan telah ditutup."
+            : "Pesanan sudah diterima penyedia. Pantau status dan tunggu makanan siap diambil."
       }}
     </p>
-
     <form
       v-if="pilihan"
       ref="areaKonfirmasi"
@@ -183,44 +162,40 @@ async function kirim(aksi) {
             pilihan === "selesai"
               ? "Konfirmasi serah terima"
               : pilihan === "tolak"
-              ? "Konfirmasi penolakan"
-              : "Konfirmasi pembatalan"
+                ? "Konfirmasi penolakan"
+                : "Konfirmasi pembatalan"
           }}
         </legend>
-
         <template v-if="pilihan === 'selesai'">
           <p>Catat setelah pembeli benar-benar menerima makanan.</p>
-
-          <label class="check-row">
-            <input
+          <label class="check-row"
+            ><input
               id="makanan-diserahkan"
               type="checkbox"
               v-model="makananDiserahkan"
             />
-            <span>Makanan sudah diserahkan kepada pembeli.</span>
-          </label>
-
+            <span>Makanan sudah diserahkan kepada pembeli.</span></label
+          >
           <label v-if="props.pesanan.total > 0" class="check-row">
             <input
               id="pembayaran-diterima"
               type="checkbox"
               v-model="pembayaranDiterima"
             />
-            <span>
-              Pembayaran di tempat sebesar
-              {{ formatRupiah(props.pesanan.total) }} sudah diterima.
-            </span>
+            <span
+              >Pembayaran di tempat sebesar
+              {{ formatRupiah(props.pesanan.total) }} sudah diterima.</span
+            >
           </label>
-
           <p v-else class="field-hint">
             Pesanan gratis. Tidak ada pembayaran yang perlu diterima.
           </p>
         </template>
-
         <template v-else>
-          <label for="alasan-aksi">
-            Alasan {{ pilihan === "tolak" ? "penolakan" : "pembatalan" }}
-          </label>
+          <label for="alasan-aksi"
+            >Alasan
+            {{ pilihan === "tolak" ? "penolakan" : "pembatalan" }}</label
+          >
           <textarea
             id="alasan-aksi"
             v-model.trim="alasan"
@@ -234,7 +209,6 @@ async function kirim(aksi) {
             dilihat oleh kedua pihak.
           </p>
         </template>
-
         <div class="button-group">
           <button
             type="submit"
@@ -242,20 +216,15 @@ async function kirim(aksi) {
           >
             {{
               sibuk
-                ? "Memproses..."
+                ? "Memproses…"
                 : pilihan === "selesai"
-                ? "Selesaikan serah terima"
-                : pilihan === "tolak"
-                ? "Konfirmasi penolakan"
-                : "Konfirmasi pembatalan"
+                  ? "Selesaikan serah terima"
+                  : pilihan === "tolak"
+                    ? "Konfirmasi penolakan"
+                    : "Konfirmasi pembatalan"
             }}
           </button>
-
-          <button
-            type="button"
-            class="button-secondary"
-            @click="pilihan = ''"
-          >
+          <button type="button" class="button-secondary" @click="pilihan = ''">
             Kembali
           </button>
         </div>

@@ -7,7 +7,6 @@ export function useBaca(baca) {
   const error = ref("");
   let controller;
   let urutan = 0;
-
   function batalkan() {
     urutan++;
     controller?.abort();
@@ -15,17 +14,14 @@ export function useBaca(baca) {
     data.value = null;
     error.value = "";
   }
-
   async function muat() {
     controller?.abort();
     controller = new AbortController();
     const signal = controller.signal;
     const nomor = ++urutan;
-
     sibuk.value = true;
     error.value = "";
     data.value = null;
-
     try {
       const hasil = await baca(signal);
       if (nomor === urutan && !signal.aborted) data.value = hasil;
@@ -37,11 +33,9 @@ export function useBaca(baca) {
       if (nomor === urutan) sibuk.value = false;
     }
   }
-
   onUnmounted(() => {
     urutan++;
     controller?.abort();
   });
-
   return { data, sibuk, error, muat, batalkan };
 }

@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import { sesi } from "../lib/sesi.js";
 import KatalogView from "../views/KatalogView.vue";
-
 const LoginView = () => import("../views/LoginView.vue");
 const RegistrasiView = () => import("../views/RegistrasiView.vue");
 const ProfilPenyediaView = () => import("../views/ProfilPenyediaView.vue");
@@ -15,8 +14,16 @@ export const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", component: KatalogView, meta: { judul: "Katalog" } },
-    { path: "/login", component: LoginView, meta: { judul: "Login" } },
-    { path: "/daftar", component: RegistrasiView, meta: { judul: "Daftar" } },
+    {
+      path: "/login",
+      component: LoginView,
+      meta: { judul: "Login" },
+    },
+    {
+      path: "/daftar",
+      component: RegistrasiView,
+      meta: { judul: "Daftar" },
+    },
     {
       path: "/akun/penyedia",
       component: ProfilPenyediaView,
@@ -69,7 +76,6 @@ export const router = createRouter({
     },
   ],
 });
-
 router.beforeEach((to) => {
   if (to.meta.auth && (!sesi.pengguna || sesi.keluar)) return "/login";
   if (to.meta.peran && sesi.pengguna?.peran !== to.meta.peran)
@@ -83,7 +89,6 @@ router.beforeEach((to) => {
   if (["/login", "/daftar"].includes(to.path) && sesi.pengguna && !sesi.keluar)
     return "/";
 });
-
 router.afterEach((to) => {
   document.title = `${to.meta.judul ?? "Informasi"} | SisaBaik`;
 });

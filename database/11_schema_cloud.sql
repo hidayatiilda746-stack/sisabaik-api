@@ -1,5 +1,4 @@
 -- Schema awal untuk database lokal/cloud kosong; dipanggil dalam transaksi oleh script.
-
 CREATE TABLE pengguna (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   nama_lengkap VARCHAR(100) NOT NULL,
@@ -26,24 +25,25 @@ CREATE TABLE penyedia (
 );
 
 CREATE TABLE penawaran (
-  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  penyedia_id BIGINT NOT NULL
-    REFERENCES penyedia(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
-  nama VARCHAR(120) NOT NULL,
-  kategori VARCHAR(40) NOT NULL,
-  harga_normal NUMERIC(12,0) NOT NULL CHECK (harga_normal > 0),
-  harga_penawaran NUMERIC(12,0) NOT NULL
-    CHECK (harga_penawaran >= 0 AND harga_penawaran <= harga_normal),
+ id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ penyedia_id BIGINT NOT NULL
+   REFERENCES penyedia(id)
+   ON UPDATE CASCADE ON DELETE RESTRICT,
+ nama VARCHAR(120) NOT NULL,
+ kategori VARCHAR(40) NOT NULL,
+ harga_normal NUMERIC(12,0) NOT NULL CHECK (harga_normal > 0),
+ harga_penawaran NUMERIC(12,0) NOT NULL
+
+   CHECK (harga_penawaran >= 0 AND harga_penawaran <= harga_normal),
   stok INTEGER NOT NULL CHECK (stok >= 0),
   satuan VARCHAR(20) NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'aktif'
-    CHECK (status IN ('draft', 'aktif', 'habis', 'kedaluwarsa')),
+   CHECK (status IN ('draft', 'aktif', 'habis', 'kedaluwarsa')),
   berakhir_pada TIMESTAMPTZ NOT NULL,
   dibuat_pada TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT uq_penawaran_id_penyedia UNIQUE (id, penyedia_id),
   CONSTRAINT ck_penawaran_waktu
-    CHECK (berakhir_pada > dibuat_pada)
+   CHECK (berakhir_pada > dibuat_pada)
 );
 
 CREATE TABLE pesanan (
@@ -73,23 +73,23 @@ CREATE TABLE detail_pesanan (
   penyedia_id BIGINT NOT NULL,
   kuantitas INTEGER NOT NULL CHECK (kuantitas > 0),
   harga_normal_satuan NUMERIC(12,0) NOT NULL
-    CHECK (harga_normal_satuan > 0),
+   CHECK (harga_normal_satuan > 0),
   harga_penawaran_satuan NUMERIC(12,0) NOT NULL
-    CHECK (
-      harga_penawaran_satuan >= 0
-      AND harga_penawaran_satuan <= harga_normal_satuan
-    ),
+   CHECK (
+     harga_penawaran_satuan >= 0
+     AND harga_penawaran_satuan <= harga_normal_satuan
+   ),
   subtotal NUMERIC(12,0) GENERATED ALWAYS AS
-    (kuantitas * harga_penawaran_satuan) STORED,
+   (kuantitas * harga_penawaran_satuan) STORED,
   nilai_stok NUMERIC(12,0) GENERATED ALWAYS AS
-    (kuantitas * harga_normal_satuan) STORED,
+   (kuantitas * harga_normal_satuan) STORED,
   PRIMARY KEY (pesanan_id, penawaran_id),
   FOREIGN KEY (pesanan_id, penyedia_id)
-    REFERENCES pesanan(id, penyedia_id)
-    ON UPDATE CASCADE ON DELETE CASCADE,
+   REFERENCES pesanan(id, penyedia_id)
+   ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY (penawaran_id, penyedia_id)
-    REFERENCES penawaran(id, penyedia_id)
-    ON UPDATE CASCADE ON DELETE RESTRICT
+   REFERENCES penawaran(id, penyedia_id)
+   ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 CREATE TABLE pengambilan (
@@ -107,7 +107,7 @@ CREATE TABLE pengambilan (
 
 CREATE INDEX idx_penawaran_penyedia ON penawaran(penyedia_id);
 CREATE INDEX idx_penawaran_status_berakhir
-  ON penawaran(status, berakhir_pada);
+ ON penawaran(status, berakhir_pada);
 CREATE INDEX idx_pesanan_pembeli ON pesanan(pembeli_id);
 CREATE INDEX idx_pesanan_penyedia ON pesanan(penyedia_id);
 CREATE INDEX idx_detail_penawaran ON detail_pesanan(penawaran_id);

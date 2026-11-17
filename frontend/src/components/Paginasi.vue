@@ -1,14 +1,11 @@
 <script setup>
 import Ikon from "./Ikon.vue";
-
 const props = defineProps({
   meta: { type: Object, required: true },
   sibuk: { type: Boolean, default: false },
 });
-
 const emit = defineEmits(["halaman"]);
 </script>
-
 <template>
   <nav class="paginasi" aria-label="Halaman hasil">
     <button
@@ -19,13 +16,10 @@ const emit = defineEmits(["halaman"]);
     >
       <Ikon nama="kiri" />Sebelumnya
     </button>
-
     <p role="status" aria-live="polite">
-      Halaman {{ props.meta.page }} dari
-      {{ Math.max(1, props.meta.totalPages) }}
-      <span>({{ props.meta.jumlah }} hasil)</span>
+      Halaman {{ props.meta.page }} dari {{ Math.max(1, props.meta.totalPages)
+      }}<span> — {{ props.meta.jumlah }} hasil</span>
     </p>
-
     <button
       class="button-secondary"
       type="button"

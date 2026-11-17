@@ -7,9 +7,7 @@ const props = defineProps({
   berhasil: { type: Number, default: 0 },
   penawaran: { type: Object, default: null },
 });
-
 const emit = defineEmits(["simpan", "batal"]);
-
 const form = ref(formKosong());
 const errors = ref({});
 const ringkasan = ref(null);
@@ -17,9 +15,7 @@ const fotoInput = ref(null);
 const fotoBaru = ref(undefined);
 const pratinjau = ref("");
 const membacaFoto = ref(false);
-
 let pembaca;
-
 onUnmounted(() => pembaca?.abort());
 
 function isiForm() {
@@ -36,7 +32,7 @@ function isiForm() {
   if (p) {
     const d = new Date(p.berakhirPada);
     form.value.berakhirPada = new Date(
-      d.getTime() - d.getTimezoneOffset() * 60000
+      d.getTime() - d.getTimezoneOffset() * 60000,
     )
       .toISOString()
       .slice(0, 16);
@@ -44,14 +40,12 @@ function isiForm() {
   }
   pratinjau.value = p?.fotoUrl ?? "";
 }
-
 watch(() => props.penawaran, isiForm, { immediate: true });
 
 function pilihFoto(event) {
   pembaca?.abort();
   const file = event.target.files?.[0];
   if (!file) return;
-
   if (
     !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
     file.size > 2 * 1024 * 1024
@@ -61,7 +55,6 @@ function pilihFoto(event) {
     membacaFoto.value = false;
     return;
   }
-
   delete errors.value.foto;
   membacaFoto.value = true;
   const reader = new FileReader();
@@ -82,7 +75,6 @@ function pilihFoto(event) {
   };
   reader.readAsDataURL(file);
 }
-
 function hapusFoto() {
   pembaca?.abort();
   pembaca = null;
@@ -96,7 +88,7 @@ watch(
   () => props.berhasil,
   () => {
     isiForm();
-  }
+  },
 );
 
 async function simpan() {
@@ -104,13 +96,11 @@ async function simpan() {
   const hasil = validasiForm(form.value);
   if (errors.value.foto) hasil.errors.foto = errors.value.foto;
   errors.value = hasil.errors;
-
   if (!hasil.data || Object.keys(errors.value).length) {
     await nextTick();
     ringkasan.value?.focus();
     return;
   }
-
   if (props.penawaran) hasil.data.versi = props.penawaran.versi;
   if (fotoBaru.value !== undefined) hasil.data.foto = fotoBaru.value;
   emit("simpan", hasil.data);
@@ -136,13 +126,11 @@ async function simpan() {
         Isi detail makanan, harga, stok, dan batas waktu. Pilih Draft untuk
         menyimpan tanpa menampilkan di katalog.
       </p>
-
       <p ref="ringkasan" tabindex="-1" role="status" aria-live="polite">
         <span v-if="Object.keys(errors).length"
           >Periksa isian yang ditandai.</span
         >
       </p>
-
       <div class="form-grid">
         <div class="field-full">
           <label for="nama">Nama penawaran</label>
@@ -159,7 +147,6 @@ async function simpan() {
             {{ errors.nama }}
           </p>
         </div>
-
         <div>
           <label for="kategori-form">Kategori</label>
           <select
@@ -177,7 +164,6 @@ async function simpan() {
             {{ errors.kategori }}
           </p>
         </div>
-
         <div>
           <label for="normal">Harga normal dalam rupiah</label>
           <input
@@ -195,7 +181,6 @@ async function simpan() {
             {{ errors.hargaNormal }}
           </p>
         </div>
-
         <div>
           <label for="hemat">Harga penawaran dalam rupiah</label>
           <input
@@ -215,7 +200,6 @@ async function simpan() {
             {{ errors.hargaPenawaran }}
           </p>
         </div>
-
         <div>
           <label for="stok">Stok yang masih tersedia</label>
           <input
@@ -233,7 +217,6 @@ async function simpan() {
             {{ errors.stok }}
           </p>
         </div>
-
         <div>
           <label for="satuan">Satuan</label>
           <input
@@ -248,7 +231,6 @@ async function simpan() {
             {{ errors.satuan }}
           </p>
         </div>
-
         <div>
           <label for="status">Status</label>
           <select
@@ -265,7 +247,6 @@ async function simpan() {
             {{ errors.status }}
           </p>
         </div>
-
         <div>
           <label for="berakhir">Berakhir pada waktu lokal perangkat</label>
           <input
@@ -282,14 +263,13 @@ async function simpan() {
             {{ errors.berakhirPada }}
           </p>
         </div>
-
         <div class="field-full photo-field">
           <label for="foto">Foto makanan (opsional)</label>
           <input
             id="foto"
             ref="fotoInput"
             type="file"
-            accept="image/jpeg, image/png, image/webp"
+            accept="image/jpeg,image/png,image/webp"
             @change="pilihFoto"
             :aria-invalid="Boolean(errors.foto)"
             :aria-describedby="
@@ -303,9 +283,7 @@ async function simpan() {
           <p id="error-foto" class="error" v-if="errors.foto">
             {{ errors.foto }}
           </p>
-
-          <p v-if="membacaFoto" role="status">Membaca foto...</p>
-
+          <p v-if="membacaFoto" role="status">Membaca foto…</p>
           <div v-if="pratinjau || errors.foto" class="photo-preview">
             <img
               v-if="pratinjau"
@@ -314,33 +292,26 @@ async function simpan() {
               width="320"
               height="210"
             />
-            <button
-              type="button"
-              class="button-secondary"
-              @click="hapusFoto"
-            >
+            <button type="button" class="button-secondary" @click="hapusFoto">
               Gunakan ilustrasi default
             </button>
           </div>
         </div>
       </div>
-
       <p class="field-hint">
         Harga penawaran boleh nol (gratis). Tanggal dan jam mengikuti zona waktu
         perangkat Anda. Stok tersedia tidak termasuk makanan yang sudah
         terreservasi.
       </p>
-
       <button class="button-wide" type="submit" :disabled="membacaFoto">
         {{
           props.sibuk
-            ? "Menyimpan..."
+            ? "Menyimpan…"
             : props.penawaran
-            ? "Simpan perubahan"
-            : "Simpan penawaran"
+              ? "Simpan perubahan"
+              : "Simpan penawaran"
         }}
       </button>
-
       <button
         v-if="props.penawaran"
         type="button"

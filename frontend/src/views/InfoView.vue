@@ -1,38 +1,15 @@
-
 <script setup>
-import { useRouter } from "vue-router";
 import Ikon from "../components/Ikon.vue";
-
-defineProps({
-  judul: {
-    type: String,
-    default: "Halaman tidak ditemukan",
-  },
-  pesan: {
-    type: String,
-    default: "Periksa alamat halaman.",
-  },
-});
-
-const router = useRouter();
+const props = defineProps({ judul: String, pesan: String });
 </script>
-
 <template>
-  <section class="container info-page">
-    <p class="eyebrow">
-      <Ikon nama="daun" />
-      Informasi SisaBaik
-    </p>
-
-    <h1>{{ judul }}</h1>
-
-    <p class="muted">
-      {{ pesan }}
-    </p>
-
-    <RouterLink to="/" class="button">
-      <Ikon nama="panah" />
-      Kembali ke beranda
-    </RouterLink>
+  <section class="container section info-page">
+    <span class="icon-tile"><Ikon nama="info" /></span>
+    <p class="eyebrow">Mari kembali ke jalur yang tepat</p>
+    <h1>{{ props.judul }}</h1>
+    <p class="muted">{{ props.pesan }}</p>
+    <RouterLink class="button" to="/"
+      >Kembali ke katalog<Ikon nama="panah"
+    /></RouterLink>
   </section>
 </template>
